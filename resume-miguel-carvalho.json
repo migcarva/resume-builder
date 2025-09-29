@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "basics": {
+    "name": "Miguel Carvalho",
+    "title": "Lead Frontend Engineer",
+    "email": "m@miguelcarvalho.xyz",
+    "phone": "",
+    "location": "",
+    "website": "https://miguelcarvalho.xyz",
+    "github": "github.com/migcarva",
+    "linkedin": "linkedin.com/in/migcarva"
+  },
+  "summary": "My name is Miguel Carvalho, and I'm a Frontend Engineer from Portugal, with a passion for Minimalistic\nArchitecture, Clean Design, and Empowering Technology.\n\nIn the last 10 years, I did a successful career change, founded a startup working on SaaS for management and\nlogistics, joined the fantastic team at Bright Pixel to help build better StayUps (contrary to startups, the former live\nlonger), had an amazing time translating the world with Unbabel.\n\nSince 2020 I went full on freelancing: I’ve helped Munii build a new way of banking, joined forces with ASAP to\nhelp speed up the research on Parkinson, created a better zoom alternative for the hybrid workplace with Around\nand delivery the best digital art experience with Sedition.",
+  "skills": [
+    {
+      "group": "Core",
+      "items": [
+        "TypeScript",
+        "React",
+        "Next.js",
+        "Node.js",
+        "Vite",
+        "Zustand"
+      ]
+    },
+    {
+      "group": "Testing",
+      "items": [
+        "Playwright",
+        "Vitest",
+        "Testing Library",
+        "Cypress"
+      ]
+    },
+    {
+      "group": "UI",
+      "items": [
+        "Tailwind",
+        "Radix",
+        "CSS Modules",
+        "Storybook"
+      ]
+    },
+    {
+      "group": "Ops",
+      "items": [
+        "Docker",
+        "GitHub Actions",
+        "Vercel",
+        "CI/CD"
+      ]
+    }
+  ],
+  "experience": [
+    {
+      "role": "Lead Frontend Engineer",
+      "company": "Acme Insurtech",
+      "location": "Remote",
+      "start": "2022-05-01",
+      "end": "",
+      "bullets": [
+        "Led migration to Next.js App Router; reduced TTFB by 38%.",
+        "Designed E2E strategy with Playwright + trace viewer; cut flaky test rate to <2%.",
+        "Drove component library adoption across 4 squads."
+      ]
+    },
+    {
+      "role": "Senior Frontend Engineer",
+      "company": "Contoso",
+      "location": "Lisbon",
+      "start": "2020-02-01",
+      "end": "2022-04-01",
+      "bullets": [
+        "Built quote flow with 20% funnel uplift using progressive disclosure.",
+        "Introduced bundle analyzer + code splitting to reduce JS by 30%."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "Open Winds",
+      "url": "https://example.com",
+      "subtitle": "Sailing weather router",
+      "details": "Wind/sea routing progressive web app for coastal passages."
+    }
+  ],
+  "education": [
+    {
+      "school": "IST",
+      "degree": "MSc, Computer Engineering",
+      "year": "2016"
+    }
+  ]
+}

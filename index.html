@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Resume Builder — Local, Single‑File</title>
+  <style>
+    :root {
+      --bg: #0b0c10;
+      --panel: #111217;
+      --muted: #c3c7d1;
+      --text: #e7e9ee;
+      --accent: #4ea1f3;
+      --accent-2: #6de1b6;
+      --border: #2a2d36;
+      --warn: #f39c12;
+      --danger: #ff6b6b;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: var(--sans); color: var(--text); background: linear-gradient(180deg, #0b0c10, #0f1117);
+    }
+    .app {
+      display: grid; grid-template-columns: 420px 1fr; gap: 12px; height: 100vh; padding: 12px; overflow: hidden;
+    }
+    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+    .toolbar {
+      display: flex; gap: 8px; flex-wrap: wrap; padding: 10px; border-bottom: 1px solid var(--border); background: #0f1117;
+      position: sticky; top: 0; z-index: 10;
+    }
+    button, .btn {
+      appearance: none; border: 1px solid var(--border); background: #161a22; color: var(--text); padding: 8px 10px; border-radius: 8px; cursor: pointer;
+      font-weight: 600; font-size: 13px; transition: transform .04s ease, background .2s ease, border-color .2s ease; user-select: none;
+    }
+    button:hover { background: #1d2330; border-color: #32384a; }
+    button:active { transform: translateY(1px); }
+    .btn-primary { background: #18324a; border-color: #2e567a; }
+    .btn-primary:hover { background: #1e3b58; }
+    .btn-danger { background: #3b1a1a; border-color: #6a2c2c; }
+    .btn-danger:hover { background: #4a2020; }
+    .grow { flex: 1; }
+
+    .editor { overflow: auto; padding: 12px; }
+    .section { border: 1px dashed #2a2d36; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+    .section h3 { margin: 0 0 10px; font-size: 14px; letter-spacing: .02em; color: var(--muted); text-transform: uppercase; }
+    label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    input[type="text"], input[type="date"], textarea {
+      width: 100%; background: #0f1117; color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 8px; font-size: 14px; outline: none;
+    }
+    textarea { min-height: 70px; resize: vertical; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .muted { color: var(--muted); }
+    .small { font-size: 12px; }
+    .pill { display: inline-block; padding: 3px 8px; border: 1px solid var(--border); border-radius: 999px; font-size: 12px; margin: 2px; }
+    .list { display: flex; flex-direction: column; gap: 12px; }
+    .item { border: 1px solid var(--border); border-radius: 10px; padding: 10px; background: #0f1117; }
+    .item-header { display: flex; gap: 8px; align-items: center; }
+    .item-header strong { font-size: 14px; }
+    .item-actions { margin-left: auto; display: flex; gap: 6px; }
+
+    /* Preview */
+    .preview-wrap { overflow: auto; padding: 12px; }
+    .sheet { background: white; color: #111; width: 210mm; min-height: 297mm; margin: 0 auto; border-radius: 6px; box-shadow: 0 10px 30px rgba(0,0,0,.35); padding: 18mm; position: relative; }
+    .sheet * { color-adjust: exact; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .cv-header { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; align-items: center; margin-bottom: 14px; }
+    .cv-name { font-size: 28px; font-weight: 800; letter-spacing: .2px; }
+    .cv-title { font-size: 14px; color: #333; }
+    .cv-contact { text-align: right; font-size: 11px; line-height: 1.5; }
+    .cv-contact a { color: #0b5ad9; text-decoration: none; }
+    .cv-section { margin-top: 12px; }
+    .cv-section h2 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: #1d2a3a; margin: 0 0 6px; border-bottom: 1px solid #e7ebf0; padding-bottom: 4px; }
+    .summary { font-size: 12.5px; color: #222; line-height: 1.6; white-space: pre-line; }
+    .skills { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .skills .group-title { font-weight: 700; font-size: 12px; margin-bottom: 2px; }
+    .skills .tags { font-size: 11px; color: #333; }
+    .exp-item { break-inside: avoid; page-break-inside: avoid; margin-bottom: 8px; }
+    .exp-header { display: flex; justify-content: space-between; align-items: baseline; }
+    .exp-title { font-weight: 700; }
+    .exp-meta { font-size: 11px; color: #333; }
+    .bullets { margin: 6px 0 0 18px; font-size: 12px; }
+    .bullets li { margin-bottom: 4px; }
+    .edu-list, .proj-list { font-size: 12px; }
+    .badge { display: inline-block; font-size: 10px; padding: 2px 6px; background: #eef7ff; border: 1px solid #cfe6ff; border-radius: 999px; margin-left: 6px; }
+
+    .footer-note { position: absolute; bottom: 10mm; right: 18mm; font-size: 9px; color: #666; }
+
+    /* Print styles */
+    @media print {
+      body { background: white; }
+      .app { display: block; padding: 0; }
+      .panel.editor-panel, .toolbar { display: none !important; }
+      .preview-wrap { padding: 0; }
+      .sheet { box-shadow: none; border: none; }
+      .cv-contact a { text-decoration: none; color: #0b5ad9; }
+    }
+    @page {
+      size: A4;
+      margin: 14mm 14mm 18mm 14mm;
+    }
+
+    /* Tiny help */
+    .help { padding: 10px; background: #0f1117; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+  </style>
+</head>
+<body>
+<div class="app">
+  <!-- Editor Panel -->
+  <div class="panel editor-panel">
+    <div class="toolbar">
+      <button id="newBtn" title="Start from a blank template">New</button>
+      <button id="importBtn">Import JSON</button>
+      <button id="exportBtn">Export JSON</button>
+      <button id="saveFileBtn" class="btn" title="Save to a JSON file (if supported)">Save File</button>
+      <button id="openFileBtn" class="btn" title="Open a JSON file (if supported)">Open File</button>
+      <span class="grow"></span>
+      <button id="printBtn" class="btn-primary">Print / Save PDF</button>
+    </div>
+    <div class="editor" id="editor"></div>
+    <div class="help">
+      <strong>Tips</strong>
+      <ul>
+        <li>Everything autosaves to <code>localStorage</code> under <code>resumeDataV1</code>.</li>
+        <li>Use <em>Export JSON</em> for backup/versioning. <em>Print</em> to save as PDF.</li>
+        <li>Drag & drop reordering is avoided for reliability; use the ↑/↓ buttons.</li>
+        <li>File System Access API (<em>Save/Open File</em>) works in Chromium-based browsers.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Preview Panel -->
+  <div class="panel">
+    <div class="preview-wrap">
+      <div class="sheet" id="sheet"></div>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="hiddenFileInput" accept="application/json" style="display:none" />
+
+<script>
+  const STORAGE_KEY = 'resumeDataV1';
+  const VERSION = 1;
+
+  /** Default seed data */
+  const DEFAULT_DATA = {
+    version: VERSION,
+    basics: {
+      name: 'Your Name',
+      title: 'Senior Frontend Engineer',
+      email: 'you@example.com',
+      phone: '+351 9xx xxx xxx',
+      location: 'Sesimbra, PT',
+      website: 'https://yourdomain.com',
+      github: 'github.com/yourhandle',
+      linkedin: 'linkedin.com/in/yourhandle'
+    },
+    summary: 'Polyglot FE engineer focused on shipping robust, accessible interfaces. Passion for DX, performance, and resilient systems.',
+    skills: [
+      { group: 'Core', items: ['TypeScript','React','Next.js','Node.js','Vite','Zustand'] },
+      { group: 'Testing', items: ['Playwright','Vitest','Testing Library','Cypress'] },
+      { group: 'UI', items: ['Tailwind','Radix','CSS Modules','Storybook'] },
+      { group: 'Ops', items: ['Docker','GitHub Actions','Vercel','CI/CD'] }
+    ],
+    experience: [
+      { role: 'Lead Frontend Engineer', company: 'Acme Insurtech', location: 'Remote', start: '2022-05-01', end: '', bullets: [
+        'Led migration to Next.js App Router; reduced TTFB by 38%.',
+        'Designed E2E strategy with Playwright + trace viewer; cut flaky test rate to <2%.',
+        'Drove component library adoption across 4 squads.'
+      ]},
+      { role: 'Senior Frontend Engineer', company: 'Contoso', location: 'Lisbon', start: '2020-02-01', end: '2022-04-01', bullets: [
+        'Built quote flow with 20% funnel uplift using progressive disclosure.',
+        'Introduced bundle analyzer + code splitting to reduce JS by 30%.'
+      ]}
+    ],
+    projects: [
+      { name: 'Open Winds', url: 'https://example.com', subtitle: 'Sailing weather router', details: 'Wind/sea routing progressive web app for coastal passages.' }
+    ],
+    education: [
+      { school: 'IST', degree: 'MSc, Computer Engineering', year: '2016' }
+    ]
+  };
+
+  /** State */
+  let data = load() || DEFAULT_DATA;
+
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) { console.warn('Save failed', e); }
+  }
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { console.warn('Load failed', e); return null; }
+  }
+
+  /** Utilities */
+  const fmtDate = (iso) => {
+    if (!iso) return 'Present';
+    try {
+      const d = new Date(iso);
+      return d.toLocaleString(undefined, { month: 'short', year: 'numeric' });
+    } catch { return iso; }
+  };
+
+  function moveItem(arr, i, dir) {
+    const j = i + dir; if (j < 0 || j >= arr.length) return; const tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+  }
+
+  function commit({ editor = false, preview = true } = {}) {
+    save();
+    if (preview) renderPreview();
+    if (editor) renderEditor();
+  }
+
+  /** Editor rendering */
+  const $editor = document.getElementById('editor');
+  const $sheet = document.getElementById('sheet');
+
+  function h(tag, attrs={}, ...children) {
+    const el = document.createElement(tag);
+    for (const [k,v] of Object.entries(attrs)) {
+      if (k === 'class') el.className = v; else if (k.startsWith('on')) el.addEventListener(k.slice(2).toLowerCase(), v); else if (k === 'html') el.innerHTML = v; else el.setAttribute(k, v);
+    }
+    for (const child of children) {
+      if (child == null) continue; if (Array.isArray(child)) el.append(...child); else if (child instanceof Node) el.appendChild(child); else el.appendChild(document.createTextNode(child));
+    }
+    return el;
+  }
+
+  function input(labelText, value, oninput, attrs={}) {
+    const id = Math.random().toString(36).slice(2);
+    const el = h('div', {}, h('label', { for: id }, labelText), h('input', { id, type: 'text', value, oninput: (e)=>oninput(e.target.value), ...attrs }));
+    return el;
+  }
+  function textArea(labelText, value, oninput) {
+    const id = Math.random().toString(36).slice(2);
+    return h('div', {}, h('label', { for: id }, labelText), h('textarea', { id, oninput:(e)=>oninput(e.target.value) }, value));
+  }
+
+  function renderBasics() {
+    const b = data.basics;
+    return h('div', { class: 'section' },
+      h('h3', {}, 'Basics'),
+      input('Name', b.name, v=>{ b.name=v; commit(); }),
+      input('Title', b.title, v=>{ b.title=v; commit(); }),
+      h('div', { class:'row' },
+        input('Email', b.email, v=>{ b.email=v; commit(); }),
+        input('Phone', b.phone, v=>{ b.phone=v; commit(); })
+      ),
+      h('div', { class:'row' },
+        input('Location', b.location, v=>{ b.location=v; commit(); }),
+        input('Website', b.website, v=>{ b.website=v; commit(); })
+      ),
+      h('div', { class:'row' },
+        input('GitHub', b.github, v=>{ b.github=v; commit(); }),
+        input('LinkedIn', b.linkedin, v=>{ b.linkedin=v; commit(); })
+      ),
+    );
+  }
+
+  function renderSkills() {
+    const list = data.skills;
+    const items = list.map((s, i) => h('div', { class: 'item' },
+      h('div', { class: 'item-header' },
+        h('strong', {}, s.group || 'Group'),
+        h('span', { class: 'muted small' }, `${(s.items||[]).length} items`),
+        h('div', { class:'item-actions' },
+          h('button', { onclick: ()=>{ moveItem(list, i, -1); commit({ editor: true }); }, title: 'Move up' }, '↑'),
+          h('button', { onclick: ()=>{ moveItem(list, i, +1); commit({ editor: true }); }, title: 'Move down' }, '↓'),
+          h('button', { class:'btn-danger', onclick: ()=>{ list.splice(i,1); commit({ editor: true }); } }, 'Delete')
+        )
+      ),
+      input('Group', s.group, v=>{ s.group=v; commit(); }),
+      input('Items (comma separated)', (s.items||[]).join(', '), v=>{ s.items = v.split(',').map(x=>x.trim()).filter(Boolean); commit(); })
+    ));
+
+    return h('div', { class: 'section' },
+      h('h3', {}, 'Skills'),
+      h('div', { class: 'list' }, items),
+      h('button', { onclick: ()=>{ list.push({ group: 'New Group', items: [] }); commit({ editor: true }); } }, '+ Add Group')
+    );
+  }
+
+  function renderExperience() {
+    const list = data.experience;
+    const items = list.map((x, i) => h('div', { class:'item' },
+      h('div', { class:'item-header' },
+        h('strong', {}, `${x.role || 'Role'} @ ${x.company || 'Company'}`),
+        h('div', { class:'item-actions' },
+          h('button', { onclick: ()=>{ moveItem(list,i,-1); commit({ editor: true }); } }, '↑'),
+          h('button', { onclick: ()=>{ moveItem(list,i,+1); commit({ editor: true }); } }, '↓'),
+          h('button', { class:'btn-danger', onclick: ()=>{ list.splice(i,1); commit({ editor: true }); } }, 'Delete')
+        )
+      ),
+      h('div', { class:'row' },
+        input('Role', x.role||'', v=>{ x.role=v; commit(); }),
+        input('Company', x.company||'', v=>{ x.company=v; commit(); })
+      ),
+      h('div', { class:'row' },
+        input('Location', x.location||'', v=>{ x.location=v; commit(); }),
+        input('Start (YYYY-MM-DD)', x.start||'', v=>{ x.start=v; commit(); }, { placeholder:'YYYY-MM-DD' })
+      ),
+      h('div', { class:'row' },
+        input('End (YYYY-MM-DD, empty = Present)', x.end||'', v=>{ x.end=v; commit(); }, { placeholder:'YYYY-MM-DD' }),
+        input('Badge (optional, e.g., Remote)', x.badge||'', v=>{ x.badge=v; commit(); })
+      ),
+      textArea('Bullets (one per line)', (x.bullets||[]).join('\n'), v=>{ x.bullets = v.split(/\n+/).map(b=>b.trim()).filter(Boolean); commit(); })
+    ));
+
+    return h('div', { class:'section' },
+      h('h3', {}, 'Experience'),
+      h('div', { class:'list' }, items),
+      h('button', { onclick: ()=>{ list.unshift({ role:'', company:'', location:'', start:'', end:'', bullets:[] }); commit({ editor: true }); } }, '+ Add Role')
+    );
+  }
+
+  function renderProjects() {
+    const list = data.projects;
+    const items = list.map((p, i) => h('div', { class:'item' },
+      h('div', { class:'item-header' },
+        h('strong', {}, p.name || 'Project'),
+        h('div', { class:'item-actions' },
+          h('button', { onclick: ()=>{ moveItem(list,i,-1); commit({ editor: true }); } }, '↑'),
+          h('button', { onclick: ()=>{ moveItem(list,i,+1); commit({ editor: true }); } }, '↓'),
+          h('button', { class:'btn-danger', onclick: ()=>{ list.splice(i,1); commit({ editor: true }); } }, 'Delete')
+        )
+      ),
+      input('Name', p.name||'', v=>{ p.name=v; commit(); }),
+      input('URL', p.url||'', v=>{ p.url=v; commit(); }),
+      input('Subtitle', p.subtitle||'', v=>{ p.subtitle=v; commit(); }),
+      textArea('Details', p.details||'', v=>{ p.details=v; commit(); })
+    ));
+
+    return h('div', { class:'section' },
+      h('h3', {}, 'Projects'),
+      h('div', { class:'list' }, items),
+      h('button', { onclick: ()=>{ list.unshift({ name:'', url:'', subtitle:'', details:'' }); commit({ editor: true }); } }, '+ Add Project')
+    );
+  }
+
+  function renderEducation() {
+    const list = data.education;
+    const items = list.map((e, i) => h('div', { class:'item' },
+      h('div', { class:'item-header' },
+        h('strong', {}, e.school || 'School'),
+        h('div', { class:'item-actions' },
+          h('button', { onclick: ()=>{ moveItem(list,i,-1); commit({ editor: true }); } }, '↑'),
+          h('button', { onclick: ()=>{ moveItem(list,i,+1); commit({ editor: true }); } }, '↓'),
+          h('button', { class:'btn-danger', onclick: ()=>{ list.splice(i,1); commit({ editor: true }); } }, 'Delete')
+        )
+      ),
+      input('School', e.school||'', v=>{ e.school=v; commit(); }),
+      input('Degree', e.degree||'', v=>{ e.degree=v; commit(); }),
+      input('Year', e.year||'', v=>{ e.year=v; commit(); })
+    ));
+
+    return h('div', { class:'section' },
+      h('h3', {}, 'Education'),
+      h('div', { class:'list' }, items),
+      h('button', { onclick: ()=>{ list.push({ school:'', degree:'', year:'' }); commit({ editor: true }); } }, '+ Add Education')
+    );
+  }
+
+  function renderEditor() {
+    $editor.innerHTML = '';
+    $editor.append(
+      renderBasics(),
+      h('div', { class:'section' }, h('h3', {}, 'Summary'), textArea('Professional Summary', data.summary||'', v=>{ data.summary=v; commit(); })),
+      renderSkills(),
+      renderExperience(),
+      renderProjects(),
+      renderEducation(),
+    );
+  }
+
+  /** Preview rendering */
+  function renderPreview() {
+    const b = data.basics || {};
+
+    function contactLine() {
+      const parts = [];
+      if (b.email) parts.push(`<a href="mailto:${b.email}">${b.email}</a>`);
+      if (b.phone) parts.push(b.phone);
+      if (b.location) parts.push(b.location);
+      if (b.website) parts.push(`<a href="${b.website}">${b.website.replace(/^https?:\/\//,'')}</a>`);
+      if (b.github) parts.push(`<a href="https://${b.github}">${b.github}</a>`);
+      if (b.linkedin) parts.push(`<a href="https://${b.linkedin}">${b.linkedin}</a>`);
+      return parts.filter(Boolean).join(' · ');
+    }
+
+    const skillsHtml = (data.skills||[]).map(g=>`
+      <div>
+        <div class="group-title">${escapeHtml(g.group||'')}</div>
+        <div class="tags">${(g.items||[]).map(t=>escapeHtml(t)).join(', ')}</div>
+      </div>
+    `).join('');
+
+    const expHtml = (data.experience||[]).map(x=>`
+      <div class="exp-item">
+        <div class="exp-header">
+          <div class="exp-title">${escapeHtml(x.role||'')} · ${escapeHtml(x.company||'')}${x.badge?`<span class="badge">${escapeHtml(x.badge)}</span>`:''}</div>
+          <div class="exp-meta">${fmtDate(x.start)} – ${fmtDate(x.end)} · ${escapeHtml(x.location||'')}</div>
+        </div>
+        ${(x.bullets&&x.bullets.length)?`<ul class="bullets">${x.bullets.map(b=>`<li>${escapeHtml(b)}</li>`).join('')}</ul>`:''}
+      </div>
+    `).join('');
+
+    const projHtml = (data.projects||[]).map(p=>`
+      <div>
+        <strong>${escapeHtml(p.name||'')}</strong>${p.url?` — <a href="${p.url}">${p.url.replace(/^https?:\/\//,'')}</a>`:''}
+        ${p.subtitle?`<div class="muted">${escapeHtml(p.subtitle)}</div>`:''}
+        ${p.details?`<div>${escapeHtml(p.details)}</div>`:''}
+      </div>
+    `).join('');
+
+    const eduHtml = (data.education||[]).map(e=>`
+      <div>${escapeHtml(e.degree||'')} — <strong>${escapeHtml(e.school||'')}</strong>${e.year?`, ${escapeHtml(e.year)}`:''}</div>
+    `).join('');
+
+    $sheet.innerHTML = `
+      <div class="cv-header">
+        <div>
+          <div class="cv-name">${escapeHtml(b.name||'')}</div>
+          <div class="cv-title">${escapeHtml(b.title||'')}</div>
+        </div>
+        <div class="cv-contact">${contactLine()}</div>
+      </div>
+
+      <div class="cv-section">
+        <h2>Summary</h2>
+        <div class="summary">${escapeHtml(data.summary||'')}</div>
+      </div>
+
+      <div class="cv-section">
+        <h2>Skills</h2>
+        <div class="skills">${skillsHtml}</div>
+      </div>
+
+      <div class="cv-section">
+        <h2>Experience</h2>
+        ${expHtml}
+      </div>
+
+      ${(data.projects&&data.projects.length)?`<div class="cv-section"><h2>Projects</h2><div class="proj-list">${projHtml}</div></div>`:''}
+      ${(data.education&&data.education.length)?`<div class="cv-section"><h2>Education</h2><div class="edu-list">${eduHtml}</div></div>`:''}
+      <div class="footer-note">Generated locally • v${VERSION}</div>
+    `;
+  }
+
+  function escapeHtml(s='') {
+    return s.replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  }
+
+  /** Toolbar actions */
+  document.getElementById('printBtn').addEventListener('click', ()=>window.print());
+  document.getElementById('newBtn').addEventListener('click', ()=>{
+    if (confirm('Start a new resume? This replaces the current data (a backup is recommended).')) {
+      data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      commit({ editor: true });
+    }
+  });
+  document.getElementById('exportBtn').addEventListener('click', ()=>{
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `resume-${(data.basics?.name||'me').toLowerCase().replace(/\s+/g,'-')}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+  document.getElementById('importBtn').addEventListener('click', ()=>{
+    const input = document.getElementById('hiddenFileInput');
+    input.onchange = async (e)=>{
+      const file = e.target.files[0]; if (!file) return;
+      const text = await file.text();
+      try { data = JSON.parse(text); commit({ editor: true }); }
+      catch (err) { alert('Invalid JSON'); }
+      input.value = '';
+    };
+    input.click();
+  });
+
+  async function saveToFileFS() {
+    if (!('showSaveFilePicker' in window)) { alert('File System Access API not supported in this browser. Use Export JSON instead.'); return; }
+    try {
+      const handle = await window.showSaveFilePicker({ suggestedName: 'resume.json', types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }] });
+      const writable = await handle.createWritable();
+      await writable.write(JSON.stringify(data, null, 2));
+      await writable.close();
+    } catch (e) { if (e.name !== 'AbortError') alert('Save failed: ' + e.message); }
+  }
+  async function openFromFileFS() {
+    if (!('showOpenFilePicker' in window)) { alert('File System Access API not supported in this browser. Use Import JSON instead.'); return; }
+    try {
+      const [handle] = await window.showOpenFilePicker({ types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }] });
+      const file = await handle.getFile();
+      const text = await file.text();
+      data = JSON.parse(text); commit({ editor: true });
+    } catch (e) { if (e.name !== 'AbortError') alert('Open failed: ' + e.message); }
+  }
+  document.getElementById('saveFileBtn').addEventListener('click', saveToFileFS);
+  document.getElementById('openFileBtn').addEventListener('click', openFromFileFS);
+
+  /** Main render */
+  function render() { renderEditor(); renderPreview(); }
+
+  render();
+</script>
+</body>
+</html>
