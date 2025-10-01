@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Resume Builder — Local, Single‑File</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap');
     :root {
       --bg: #0b0c10;
       --panel: #111217;
@@ -16,17 +17,24 @@
       --warn: #f39c12;
       --danger: #ff6b6b;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      --sans: 'Geist', Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      --editor-width: 420px;
     }
     * { box-sizing: border-box; }
     html, body { height: 100%; }
     body {
       margin: 0; font-family: var(--sans); color: var(--text); background: linear-gradient(180deg, #0b0c10, #0f1117);
     }
+    body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; }
     .app {
-      display: grid; grid-template-columns: 420px 1fr; gap: 12px; height: 100vh; padding: 12px; overflow: hidden;
+      display: grid; grid-template-columns: minmax(320px, var(--editor-width)) 6px 1fr; gap: 12px; height: 100vh; padding: 12px; overflow: hidden;
     }
     .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+    .resizer { background: #1a1e28; border: 1px solid var(--border); border-radius: 999px; cursor: col-resize; position: relative; min-height: 0; align-self: stretch; }
+    .resizer::before {
+      content: ''; position: absolute; top: 20%; bottom: 20%; left: 50%; transform: translateX(-50%);
+      width: 2px; border-radius: 1px; background: #2d3442;
+    }
     .toolbar {
       display: flex; gap: 8px; flex-wrap: wrap; padding: 10px; border-bottom: 1px solid var(--border); background: #0f1117;
       position: sticky; top: 0; z-index: 10;
@@ -44,8 +52,14 @@
     .grow { flex: 1; }
 
     .editor { overflow: auto; padding: 12px; }
-    .section { border: 1px dashed #2a2d36; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
-    .section h3 { margin: 0 0 10px; font-size: 14px; letter-spacing: .02em; color: var(--muted); text-transform: uppercase; }
+    .section { border: 1px dashed #2a2d36; border-radius: 10px; margin-bottom: 12px; background: #0f1117; overflow: hidden; }
+    .section-header { list-style: none; cursor: pointer; padding: 12px; font-size: 13px; letter-spacing: .02em; color: var(--muted); text-transform: uppercase; display: flex; align-items: center; justify-content: space-between; }
+    .section-header::-webkit-details-marker { display: none; }
+    .section-header::marker { content: ''; }
+    .section-header::after { content: '▾'; font-size: 11px; color: var(--muted); transition: transform .2s ease; }
+    .section[open] > .section-header::after { transform: rotate(180deg); }
+    .section-body { padding: 12px; padding-top: 0; display: flex; flex-direction: column; gap: 10px; border-top: 1px dashed var(--border); }
+    .section[open] > .section-body { padding-top: 12px; }
     label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
     input[type="text"], input[type="date"], textarea {
       width: 100%; background: #0f1117; color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 8px; font-size: 14px; outline: none;
@@ -63,29 +77,43 @@
 
     /* Preview */
     .preview-wrap { overflow: auto; padding: 12px; }
-    .sheet { background: white; color: #111; width: 210mm; min-height: 297mm; margin: 0 auto; border-radius: 6px; box-shadow: 0 10px 30px rgba(0,0,0,.35); padding: 18mm; position: relative; }
+    .sheet { background: #fcf9f4; color: #1b1e24; width: 210mm; min-height: 297mm; margin: 0 auto; border-radius: 18px; border: 1px solid #e0dacf; box-shadow: 0 18px 36px rgba(10,10,10,.18); padding: 22mm; position: relative; }
     .sheet * { color-adjust: exact; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .cv-header { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; align-items: center; margin-bottom: 14px; }
-    .cv-name { font-size: 28px; font-weight: 800; letter-spacing: .2px; }
-    .cv-title { font-size: 14px; color: #333; }
-    .cv-contact { text-align: right; font-size: 11px; line-height: 1.5; }
-    .cv-contact a { color: #0b5ad9; text-decoration: none; }
-    .cv-section { margin-top: 12px; }
-    .cv-section h2 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: #1d2a3a; margin: 0 0 6px; border-bottom: 1px solid #e7ebf0; padding-bottom: 4px; }
-    .summary { font-size: 12.5px; color: #222; line-height: 1.6; white-space: pre-line; }
+    .cv-header { display: flex; flex-direction: column; gap: 18px; margin-bottom: 20px; }
+    .cv-name { font-size: 32px; font-weight: 600; letter-spacing: .1px; }
+    .cv-title-line { font-size: 14px; color: #2e323b; margin-top: 4px; }
+    .cv-meta { color: #555; font-size: 12.5px; margin-top: 2px; }
+    .contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 6px 20px; font-size: 12.5px; }
+    .contact-item { display: flex; align-items: baseline; gap: 8px; color: #2b2f37; text-decoration: none; }
+    .contact-item a { color: inherit; text-decoration: none; border-bottom: 1px solid transparent; }
+    .contact-item a:hover { border-color: currentColor; }
+    .contact-icon { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #646a74; }
+    .cv-section { margin-top: 24px; }
+    .cv-section h2 { font-size: 16px; font-weight: 700; margin: 0 0 12px; color: #1d1f24; }
+    .summary { font-size: 12px; color: #262932; line-height: 1.35; white-space: pre-line; }
     .skills { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .skills .group-title { font-weight: 700; font-size: 12px; margin-bottom: 2px; }
     .skills .tags { font-size: 11px; color: #333; }
-    .exp-item { break-inside: avoid; page-break-inside: avoid; margin-bottom: 8px; }
-    .exp-header { display: flex; justify-content: space-between; align-items: baseline; }
-    .exp-title { font-weight: 700; }
-    .exp-meta { font-size: 11px; color: #333; }
-    .bullets { margin: 6px 0 0 18px; font-size: 12px; }
-    .bullets li { margin-bottom: 4px; }
-    .edu-list, .proj-list { font-size: 12px; }
-    .badge { display: inline-block; font-size: 10px; padding: 2px 6px; background: #eef7ff; border: 1px solid #cfe6ff; border-radius: 999px; margin-left: 6px; }
+    .exp-list { display: flex; flex-direction: column; gap: 18px; }
+    .exp-item { display: grid; grid-template-columns: 48px 1fr; gap: 16px; break-inside: avoid; page-break-inside: avoid; }
+    .exp-icon { width: 48px; height: 48px; border-radius: 12px; background: #ebe4d8; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #353a44; overflow: hidden; }
+    .exp-icon img { width: 100%; height: 100%; object-fit: cover; }
+    .exp-placeholder { font-size: 16px; font-weight: 600; letter-spacing: .04em; color: #353a44; text-transform: uppercase; }
+    .exp-body { display: flex; flex-direction: column; }
+    .exp-header { display: flex; flex-direction: column; gap: 4px; }
+    .exp-role { font-size: 16px; font-weight: 700; color: #1b1e24; }
+    .exp-company { font-size: 13px; color: #4a4f5c; }
+    .exp-meta { font-size: 12px; color: #555; }
+    .exp-summary { font-size: 12.5px; color: #2d313b; margin: 8px 0 0; line-height: 1.55; white-space: pre-line; }
+    .bullets { margin: 8px 0 0 18px; font-size: 12.5px; }
+    .bullets li { margin-bottom: 6px; }
+    .exp-stack { font-size: 11.5px; color: #636a78; margin-top: 10px; }
+    .badge { display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 12px; background: #efe6d8; color: #5a4c35; font-size: 10.5px; margin-left: 8px; }
+    .edu-list, .proj-list { font-size: 12.5px; color: #2d313b; display: flex; flex-direction: column; gap: 8px; }
+    .proj-list a { color: #2e5aac; text-decoration: none; }
+    .proj-list a:hover { text-decoration: underline; }
 
-    .footer-note { position: absolute; bottom: 10mm; right: 18mm; font-size: 9px; color: #666; }
+    .footer-note { position: absolute; bottom: 10mm; left: 50%; transform: translateX(-50%); font-size: 10px; color: #777; }
 
     /* Print styles */
     @media print {
@@ -130,6 +158,9 @@
     </div>
   </div>
 
+  <!-- Drag handle -->
+  <div class="resizer" id="resizer" title="Drag to resize"></div>
+
   <!-- Preview Panel -->
   <div class="panel">
     <div class="preview-wrap">
@@ -142,7 +173,10 @@
 
 <script>
   const STORAGE_KEY = 'resumeDataV1';
+  const WIDTH_KEY = 'resumeEditorWidth';
   const VERSION = 1;
+  const LOGO_FILES = ['around.jpeg','brpx.jpeg','eae.jpeg','eleos.jpeg','logisthica.jpeg','sedition.jpeg','unbabel.jpeg','yld.jpeg'];
+  const LOGO_OPTIONS = [''].concat(LOGO_FILES.map(name=>name));
 
   /** Default seed data */
   const DEFAULT_DATA = {
@@ -151,13 +185,12 @@
       name: 'Your Name',
       title: 'Senior Frontend Engineer',
       email: 'you@example.com',
-      phone: '+351 9xx xxx xxx',
       location: 'Sesimbra, PT',
       website: 'https://yourdomain.com',
       github: 'github.com/yourhandle',
       linkedin: 'linkedin.com/in/yourhandle'
     },
-    summary: 'Polyglot FE engineer focused on shipping robust, accessible interfaces. Passion for DX, performance, and resilient systems.',
+    summary: 'My name is Miguel Carvalho, a Frontend Engineer from Portugal with a soft spot for minimal architecture, clean design, and software that empowers people.\n\nOver the past decade I have reinvented my career, founded a SaaS startup for logistics teams, helped Bright Pixel scale "StayUps", and shipped global translations at Unbabel.\n\nSince 2020 I have gone fully independent - designing Munii\'s next-gen banking UX, accelerating Parkinson\'s research with ASAP, creating Around\'s hybrid-meeting experience, and crafting Sedition\'s digital art platform.\n\nToday I lead frontend innovation at Eleos, transforming the InsurTech landscape and opening new revenue streams.',
     skills: [
       { group: 'Core', items: ['TypeScript','React','Next.js','Node.js','Vite','Zustand'] },
       { group: 'Testing', items: ['Playwright','Vitest','Testing Library','Cypress'] },
@@ -165,15 +198,26 @@
       { group: 'Ops', items: ['Docker','GitHub Actions','Vercel','CI/CD'] }
     ],
     experience: [
-      { role: 'Lead Frontend Engineer', company: 'Acme Insurtech', location: 'Remote', start: '2022-05-01', end: '', bullets: [
-        'Led migration to Next.js App Router; reduced TTFB by 38%.',
-        'Designed E2E strategy with Playwright + trace viewer; cut flaky test rate to <2%.',
-        'Drove component library adoption across 4 squads.'
-      ]},
-      { role: 'Senior Frontend Engineer', company: 'Contoso', location: 'Lisbon', start: '2020-02-01', end: '2022-04-01', bullets: [
-        'Built quote flow with 20% funnel uplift using progressive disclosure.',
-        'Introduced bundle analyzer + code splitting to reduce JS by 30%.'
-      ]}
+      {
+        role: 'Senior Software Engineer · Web3',
+        company: 'Sedition',
+        logo: 'sedition.jpeg',
+        location: 'Remote',
+        start: '2022-03-01',
+        end: '',
+        summary: 'Sedition sells contemporary digital art online. I lead the frontend team bringing web3 capabilities to the platform, mentoring engineers and partnering with recruitment to scale the squad.',
+        stack: 'TypeScript · React · Ether.js · Wagmi · Redux · Jest · SASS · HAML'
+      },
+      {
+        role: 'Senior Software Engineer',
+        company: 'Around by Miro Labs',
+        logo: 'around.jpeg',
+        location: 'Lisbon',
+        start: '2021-10-01',
+        end: '2022-02-01',
+        summary: 'Partnered with the Head of Product to rapidly prototype hybrid-meeting experiences and ship them into production.',
+        stack: 'TypeScript · React Native · Electron · Jest · RxJS · Styled Components · Storybook'
+      }
     ],
     projects: [
       { name: 'Open Winds', url: 'https://example.com', subtitle: 'Sailing weather router', details: 'Wind/sea routing progressive web app for coastal passages.' }
@@ -185,6 +229,10 @@
 
   /** State */
   let data = load() || DEFAULT_DATA;
+  const storedWidth = loadEditorWidth();
+  if (storedWidth) {
+    document.documentElement.style.setProperty('--editor-width', storedWidth);
+  }
 
   function save() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) { console.warn('Save failed', e); }
@@ -196,6 +244,15 @@
     } catch (e) { console.warn('Load failed', e); return null; }
   }
 
+  function saveEditorWidth(width) {
+    try { localStorage.setItem(WIDTH_KEY, width); }
+    catch (e) { console.warn('Width save failed', e); }
+  }
+  function loadEditorWidth() {
+    try { return localStorage.getItem(WIDTH_KEY); }
+    catch (e) { console.warn('Width load failed', e); return ''; }
+  }
+
   /** Utilities */
   const fmtDate = (iso) => {
     if (!iso) return 'Present';
@@ -204,6 +261,39 @@
       return d.toLocaleString(undefined, { month: 'short', year: 'numeric' });
     } catch { return iso; }
   };
+
+  const fmtRange = (start, end) => {
+    const startLabel = start ? fmtDate(start) : '';
+    const endLabel = fmtDate(end);
+    const hasStart = Boolean(startLabel);
+    const hasEnd = Boolean(endLabel);
+    const base = hasStart && hasEnd ? `${startLabel} – ${endLabel}` : (hasStart ? startLabel : endLabel);
+
+    const duration = calcDuration(start, end);
+    return base + (duration ? ` · ${duration}` : '');
+  };
+
+  function calcDuration(start, end) {
+    if (!start) return '';
+    try {
+      const from = new Date(start);
+      if (Number.isNaN(from.getTime())) return '';
+      const to = end ? new Date(end) : new Date();
+      if (Number.isNaN(to.getTime())) return '';
+      let months = (to.getFullYear() - from.getFullYear()) * 12 + (to.getMonth() - from.getMonth());
+      if (to.getDate() < from.getDate()) months -= 1;
+      if (months < 0) return '';
+      const years = Math.floor(months / 12);
+      const remMonths = months % 12;
+      const parts = [];
+      if (years) parts.push(`${years} yr${years > 1 ? 's' : ''}`);
+      if (remMonths) parts.push(`${remMonths} mo${remMonths > 1 ? 's' : ''}`);
+      if (!parts.length && months === 0) parts.push('<1 mo');
+      return parts.join(' ');
+    } catch {
+      return '';
+    }
+  }
 
   function moveItem(arr, i, dir) {
     const j = i + dir; if (j < 0 || j >= arr.length) return; const tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
@@ -218,6 +308,16 @@
   /** Editor rendering */
   const $editor = document.getElementById('editor');
   const $sheet = document.getElementById('sheet');
+  const $resizer = document.getElementById('resizer');
+
+  const sectionState = {
+    basics: true,
+    summary: true,
+    skills: true,
+    experience: true,
+    projects: true,
+    education: true,
+  };
 
   function h(tag, attrs={}, ...children) {
     const el = document.createElement(tag);
@@ -230,26 +330,98 @@
     return el;
   }
 
+  function collapsibleSection(key, title, ...children) {
+    const details = h('details', { class: 'section' });
+    if (sectionState[key] !== false) details.setAttribute('open', '');
+    const summary = h('summary', { class: 'section-header' }, title);
+    const body = h('div', { class: 'section-body' }, ...children);
+    details.append(summary, body);
+    details.addEventListener('toggle', () => { sectionState[key] = details.open; });
+    return details;
+  }
+
   function input(labelText, value, oninput, attrs={}) {
     const id = Math.random().toString(36).slice(2);
     const el = h('div', {}, h('label', { for: id }, labelText), h('input', { id, type: 'text', value, oninput: (e)=>oninput(e.target.value), ...attrs }));
     return el;
   }
+
+  if ($resizer) {
+    let resizing = null;
+    const MIN_WIDTH = 300;
+    const MAX_WIDTH = 720;
+
+    $resizer.addEventListener('pointerdown', (event) => {
+      if (event.button !== 0) return;
+      event.preventDefault();
+      const startWidth = getEditorWidth();
+      resizing = { pointerId: event.pointerId, startX: event.clientX, startWidth };
+      try { $resizer.setPointerCapture(event.pointerId); } catch (e) {}
+      document.body.classList.add('resizing');
+    });
+
+    $resizer.addEventListener('pointermove', (event) => {
+      if (!resizing) return;
+      const delta = event.clientX - resizing.startX;
+      const next = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, resizing.startWidth + delta));
+      document.documentElement.style.setProperty('--editor-width', `${next}px`);
+    });
+
+    const endResize = (event) => {
+      if (!resizing) return;
+      if (event?.pointerId != null) {
+        try { $resizer.releasePointerCapture(event.pointerId); } catch (e) {}
+      }
+      const current = getEditorWidth();
+      saveEditorWidth(`${current}px`);
+      resizing = null;
+      document.body.classList.remove('resizing');
+    };
+
+    $resizer.addEventListener('pointerup', endResize);
+    $resizer.addEventListener('pointercancel', endResize);
+  }
+
+  function getEditorWidth() {
+    const raw = getComputedStyle(document.documentElement).getPropertyValue('--editor-width');
+    const parsed = parseFloat(raw);
+    return Number.isFinite(parsed) ? parsed : 420;
+  }
   function textArea(labelText, value, oninput) {
     const id = Math.random().toString(36).slice(2);
     return h('div', {}, h('label', { for: id }, labelText), h('textarea', { id, oninput:(e)=>oninput(e.target.value) }, value));
   }
+  function selectControl(labelText, value, options, onchange) {
+    const id = Math.random().toString(36).slice(2);
+    const opts = options.map(opt => typeof opt === 'string'
+      ? { value: opt, label: opt || '— None —' }
+      : opt);
+    return h('div', {},
+      h('label', { for: id }, labelText),
+      h('select', { id, value, onchange:(e)=>onchange(e.target.value) },
+        opts.map(opt => h('option', { value: opt.value }, opt.label))
+      )
+    );
+  }
+  function formatLogoLabel(name='') {
+    if (!name) return '— None —';
+    const human = name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ');
+    return human.replace(/\b([a-z])/g, (m, ch)=>ch.toUpperCase());
+  }
+  function initialsFromName(name='') {
+    const words = name.split(/[^A-Za-z0-9]+/).filter(Boolean);
+    if (!words.length) return '•';
+    const first = words[0][0] || '';
+    const second = words.length > 1 ? words[words.length - 1][0] : words[0][1] || '';
+    return (first + second).toUpperCase();
+  }
 
   function renderBasics() {
     const b = data.basics;
-    return h('div', { class: 'section' },
-      h('h3', {}, 'Basics'),
+    return collapsibleSection('basics', 'Basics',
       input('Name', b.name, v=>{ b.name=v; commit(); }),
       input('Title', b.title, v=>{ b.title=v; commit(); }),
-      h('div', { class:'row' },
-        input('Email', b.email, v=>{ b.email=v; commit(); }),
-        input('Phone', b.phone, v=>{ b.phone=v; commit(); })
-      ),
+      input('Email', b.email, v=>{ b.email=v; commit(); }),
       h('div', { class:'row' },
         input('Location', b.location, v=>{ b.location=v; commit(); }),
         input('Website', b.website, v=>{ b.website=v; commit(); })
@@ -277,8 +449,7 @@
       input('Items (comma separated)', (s.items||[]).join(', '), v=>{ s.items = v.split(',').map(x=>x.trim()).filter(Boolean); commit(); })
     ));
 
-    return h('div', { class: 'section' },
-      h('h3', {}, 'Skills'),
+    return collapsibleSection('skills', 'Skills',
       h('div', { class: 'list' }, items),
       h('button', { onclick: ()=>{ list.push({ group: 'New Group', items: [] }); commit({ editor: true }); } }, '+ Add Group')
     );
@@ -301,19 +472,21 @@
       ),
       h('div', { class:'row' },
         input('Location', x.location||'', v=>{ x.location=v; commit(); }),
-        input('Start (YYYY-MM-DD)', x.start||'', v=>{ x.start=v; commit(); }, { placeholder:'YYYY-MM-DD' })
-      ),
-      h('div', { class:'row' },
-        input('End (YYYY-MM-DD, empty = Present)', x.end||'', v=>{ x.end=v; commit(); }, { placeholder:'YYYY-MM-DD' }),
         input('Badge (optional, e.g., Remote)', x.badge||'', v=>{ x.badge=v; commit(); })
       ),
-      textArea('Bullets (one per line)', (x.bullets||[]).join('\n'), v=>{ x.bullets = v.split(/\n+/).map(b=>b.trim()).filter(Boolean); commit(); })
+      h('div', { class:'row' },
+        input('Start (YYYY-MM-DD)', x.start||'', v=>{ x.start=v; commit(); }, { placeholder:'YYYY-MM-DD' }),
+        input('End (YYYY-MM-DD, empty = Present)', x.end||'', v=>{ x.end=v; commit(); }, { placeholder:'YYYY-MM-DD' })
+      ),
+      selectControl('Logo (from /logos)', x.logo||'', LOGO_OPTIONS.map(name=>({ value: name, label: formatLogoLabel(name) })), v=>{ x.logo=v; commit(); }),
+      textArea('Short Summary (optional)', x.summary||'', v=>{ x.summary=v; commit(); }),
+      input('Stack / Keywords', x.stack||'', v=>{ x.stack=v; commit(); }),
     ));
 
-    return h('div', { class:'section' },
-      h('h3', {}, 'Experience'),
-      h('div', { class:'list' }, items),
-      h('button', { onclick: ()=>{ list.unshift({ role:'', company:'', location:'', start:'', end:'', bullets:[] }); commit({ editor: true }); } }, '+ Add Role')
+    const addRole = h('button', { onclick: ()=>{ list.unshift({ role:'', company:'', location:'', badge:'', start:'', end:'', logo:'', summary:'', stack:'' }); commit({ editor: true }); } }, '+ Add Role');
+    return collapsibleSection('experience', 'Experience',
+      addRole,
+      h('div', { class:'list' }, items)
     );
   }
 
@@ -334,8 +507,7 @@
       textArea('Details', p.details||'', v=>{ p.details=v; commit(); })
     ));
 
-    return h('div', { class:'section' },
-      h('h3', {}, 'Projects'),
+    return collapsibleSection('projects', 'Projects',
       h('div', { class:'list' }, items),
       h('button', { onclick: ()=>{ list.unshift({ name:'', url:'', subtitle:'', details:'' }); commit({ editor: true }); } }, '+ Add Project')
     );
@@ -357,8 +529,7 @@
       input('Year', e.year||'', v=>{ e.year=v; commit(); })
     ));
 
-    return h('div', { class:'section' },
-      h('h3', {}, 'Education'),
+    return collapsibleSection('education', 'Education',
       h('div', { class:'list' }, items),
       h('button', { onclick: ()=>{ list.push({ school:'', degree:'', year:'' }); commit({ editor: true }); } }, '+ Add Education')
     );
@@ -368,7 +539,7 @@
     $editor.innerHTML = '';
     $editor.append(
       renderBasics(),
-      h('div', { class:'section' }, h('h3', {}, 'Summary'), textArea('Professional Summary', data.summary||'', v=>{ data.summary=v; commit(); })),
+      collapsibleSection('summary', 'Summary', textArea('Professional Summary', data.summary||'', v=>{ data.summary=v; commit(); })),
       renderSkills(),
       renderExperience(),
       renderProjects(),
@@ -380,53 +551,87 @@
   function renderPreview() {
     const b = data.basics || {};
 
-    function contactLine() {
-      const parts = [];
-      if (b.email) parts.push(`<a href="mailto:${b.email}">${b.email}</a>`);
-      if (b.phone) parts.push(b.phone);
-      if (b.location) parts.push(b.location);
-      if (b.website) parts.push(`<a href="${b.website}">${b.website.replace(/^https?:\/\//,'')}</a>`);
-      if (b.github) parts.push(`<a href="https://${b.github}">${b.github}</a>`);
-      if (b.linkedin) parts.push(`<a href="https://${b.linkedin}">${b.linkedin}</a>`);
-      return parts.filter(Boolean).join(' · ');
+    const contacts = [];
+    if (b.email) contacts.push(contactItem('Email', b.email, `mailto:${encodeURIComponent(b.email.trim())}`));
+    if (b.linkedin) {
+      const href = normaliseHttp(b.linkedin);
+      if (href) contacts.push(contactItem('LinkedIn', b.linkedin.replace(/^https?:\/\//,'').replace(/\/$/, ''), href));
     }
+    if (b.website) {
+      const href = normaliseHttp(b.website);
+      if (href) contacts.push(contactItem('Website', href.replace(/^https?:\/\//,'').replace(/\/$/, ''), href));
+    }
+    if (b.github) {
+      const href = normaliseHttp(b.github);
+      if (href) contacts.push(contactItem('GitHub', href.replace(/^https?:\/\//,'').replace(/\/$/, ''), href));
+    }
+
+    const contactHtml = contacts.join('');
 
     const skillsHtml = (data.skills||[]).map(g=>`
       <div>
         <div class="group-title">${escapeHtml(g.group||'')}</div>
-        <div class="tags">${(g.items||[]).map(t=>escapeHtml(t)).join(', ')}</div>
+        <div class="tags">${(g.items||[]).map(t=>escapeHtml(t)).join(' · ')}</div>
       </div>
     `).join('');
 
-    const expHtml = (data.experience||[]).map(x=>`
-      <div class="exp-item">
-        <div class="exp-header">
-          <div class="exp-title">${escapeHtml(x.role||'')} · ${escapeHtml(x.company||'')}${x.badge?`<span class="badge">${escapeHtml(x.badge)}</span>`:''}</div>
-          <div class="exp-meta">${fmtDate(x.start)} – ${fmtDate(x.end)} · ${escapeHtml(x.location||'')}</div>
+    const expHtml = (data.experience||[]).map(x=>{
+      const logoSrc = x.logo ? `logos/${encodeURIComponent(x.logo)}` : '';
+      const iconMarkup = logoSrc
+        ? `<img src="${escapeAttr(logoSrc)}" alt="${escapeHtml(x.company || 'Company')} logo" loading="lazy">`
+        : `<span class="exp-placeholder">${escapeHtml(initialsFromName(x.company || x.role || ''))}</span>`;
+      const role = escapeHtml(x.role || 'Role');
+      const company = escapeHtml(x.company || 'Company');
+      const badge = x.badge ? `<span class="badge">${escapeHtml(x.badge)}</span>` : '';
+      const metaParts = [];
+      const range = fmtRange(x.start, x.end);
+      if (range) metaParts.push(range);
+      if (x.location) metaParts.push(escapeHtml(x.location));
+      const meta = metaParts.join(' · ');
+      const summary = x.summary ? `<div class="exp-summary">${escapeHtml(x.summary)}</div>` : '';
+      const stack = x.stack ? `<div class="exp-stack">${escapeHtml(x.stack)}</div>` : '';
+      return `
+        <div class="exp-item">
+          <div class="exp-icon">${iconMarkup}</div>
+          <div class="exp-body">
+            <div class="exp-header">
+              <div class="exp-role">${role}</div>
+              <div class="exp-company">${company} ${badge}</div>
+              ${meta ? `<div class="exp-meta">${meta}</div>` : ''}
+            </div>
+            ${summary}
+            ${stack}
+          </div>
         </div>
-        ${(x.bullets&&x.bullets.length)?`<ul class="bullets">${x.bullets.map(b=>`<li>${escapeHtml(b)}</li>`).join('')}</ul>`:''}
-      </div>
-    `).join('');
+      `;
+    }).join('');
 
-    const projHtml = (data.projects||[]).map(p=>`
-      <div>
-        <strong>${escapeHtml(p.name||'')}</strong>${p.url?` — <a href="${p.url}">${p.url.replace(/^https?:\/\//,'')}</a>`:''}
-        ${p.subtitle?`<div class="muted">${escapeHtml(p.subtitle)}</div>`:''}
-        ${p.details?`<div>${escapeHtml(p.details)}</div>`:''}
-      </div>
-    `).join('');
+    const projHtml = (data.projects||[]).map(p=>{
+      const url = normaliseHttp(p.url);
+      const link = url ? ` — <a href="${escapeAttr(url)}">${escapeHtml(url.replace(/^https?:\/\//,'').replace(/\/$/, ''))}</a>` : '';
+      return `
+        <div>
+          <strong>${escapeHtml(p.name||'')}</strong>${link}
+          ${p.subtitle?`<div class="muted">${escapeHtml(p.subtitle)}</div>`:''}
+          ${p.details?`<div class="exp-summary">${escapeHtml(p.details)}</div>`:''}
+        </div>
+      `;
+    }).join('');
 
     const eduHtml = (data.education||[]).map(e=>`
-      <div>${escapeHtml(e.degree||'')} — <strong>${escapeHtml(e.school||'')}</strong>${e.year?`, ${escapeHtml(e.year)}`:''}</div>
+      <div><strong>${escapeHtml(e.school||'')}</strong>${e.degree?` — ${escapeHtml(e.degree)}`:''}${e.year?`, ${escapeHtml(e.year)}`:''}</div>
     `).join('');
+
+    const footerName = escapeHtml(b.name || 'Resume');
 
     $sheet.innerHTML = `
       <div class="cv-header">
         <div>
           <div class="cv-name">${escapeHtml(b.name||'')}</div>
-          <div class="cv-title">${escapeHtml(b.title||'')}</div>
+          ${b.title?`<div class="cv-title-line">${escapeHtml(b.title)}</div>`:''}
+          ${b.location?`<div class="cv-meta">${escapeHtml(b.location)}</div>`:''}
         </div>
-        <div class="cv-contact">${contactLine()}</div>
+        ${contactHtml?`<div class="contact-grid">${contactHtml}</div>`:''}
       </div>
 
       <div class="cv-section">
@@ -434,24 +639,39 @@
         <div class="summary">${escapeHtml(data.summary||'')}</div>
       </div>
 
-      <div class="cv-section">
-        <h2>Skills</h2>
-        <div class="skills">${skillsHtml}</div>
-      </div>
-
-      <div class="cv-section">
-        <h2>Experience</h2>
-        ${expHtml}
-      </div>
-
+      ${(data.skills&&data.skills.length)?`<div class="cv-section"><h2>Skills</h2><div class="skills">${skillsHtml}</div></div>`:''}
+      ${(expHtml)?`<div class="cv-section"><h2>Experience</h2><div class="exp-list">${expHtml}</div></div>`:''}
       ${(data.projects&&data.projects.length)?`<div class="cv-section"><h2>Projects</h2><div class="proj-list">${projHtml}</div></div>`:''}
       ${(data.education&&data.education.length)?`<div class="cv-section"><h2>Education</h2><div class="edu-list">${eduHtml}</div></div>`:''}
-      <div class="footer-note">Generated locally • v${VERSION}</div>
+
+      <div class="footer-note">${footerName} · page 1</div>
     `;
   }
 
+  function contactItem(icon, label, href) {
+    const content = href ? `<a href="${escapeAttr(href)}">${escapeHtml(label)}</a>` : escapeHtml(label);
+    return `<div class="contact-item">${icon ? `<span class="contact-icon">${escapeHtml(icon)}</span>` : ''}${content}</div>`;
+  }
+
+  function normaliseHttp(raw='') {
+    let val = (raw || '').trim();
+    if (!val) return '';
+    if (!/^https?:/i.test(val)) val = 'https://' + val.replace(/^\/+/, '');
+    try {
+      const url = new URL(val);
+      if (!/^https?:$/i.test(url.protocol)) return '';
+      return url.href;
+    } catch {
+      return '';
+    }
+  }
+
   function escapeHtml(s='') {
-    return s.replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    return s.replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+  }
+
+  function escapeAttr(s='') {
+    return escapeHtml(s).replace(/`/g, '&#96;');
   }
 
   /** Toolbar actions */
