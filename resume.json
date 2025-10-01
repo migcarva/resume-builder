@@ -2,10 +2,10 @@
   "version": 1,
   "basics": {
     "name": "Miguel Carvalho",
-    "title": "Lead Frontend Engineer",
+    "title": "",
     "email": "m@miguelcarvalho.xyz",
     "phone": "+351 9xx xxx xxx",
-    "location": "Sesimbra, Portugal",
+    "location": "",
     "website": "https://miguelcarvalho.xyz",
     "github": "github.com/migcarva",
     "linkedin": "linkedin.com/in/migcarva"
@@ -66,7 +66,7 @@
       "logo": "eleos.jpeg"
     },
     {
-      "role": "Lead Software Engineer",
+      "role": "Lead Frontend Engineer",
       "company": "Sedition",
       "icon": "🖼️",
       "location": "Remote",
@@ -164,7 +164,44 @@
       "bullets": []
     }
   ],
-  "projects": [],
+  "projects": [
+    {
+      "name": "Kodebase",
+      "url": "kodebase.ai",
+      "subtitle": "",
+      "details": "Kodebase transforms your Git repo into a living knowledge base, storing every plan, task, and doc alongside code for instant human-and-AI context."
+    },
+    {
+      "name": "Miguel Carvalho Portfolio",
+      "url": "miguelcarvalho.xyz",
+      "subtitle": "",
+      "details": "Miguelcarvalho.xyz is my portfolio hub, highlighting my experience, selected work, and the projects that define my engineering practice"
+    },
+    {
+      "name": "Hardly Cool",
+      "url": "hardly.cool",
+      "subtitle": "",
+      "details": "Ideas Lab, Logo Design, Branding"
+    },
+    {
+      "name": "Tokie",
+      "url": "tokie.io",
+      "subtitle": "",
+      "details": "The fastest way to discover and share trades on Solana."
+    },
+    {
+      "name": "Portugal Desigual by FFMS",
+      "url": "https://ffms.pt/pt-pt/estudos/estudos/portugal-desigual-um-retrato-das-desigualdades-de-rendimentos-e-da-pobreza-no-pais",
+      "subtitle": "",
+      "details": "Unequal Portugal | A portrait of income inequality and poverty in the country."
+    },
+    {
+      "name": "Educação em Exame",
+      "url": "https://ffms.pt/pt-pt/estudos/educacao-em-exame",
+      "subtitle": "",
+      "details": "“Qual a qualidade da Educação em Portugal?” examines decades of PISA results to show how Portuguese students stack up against OECD peers, charting progress made and the gaps the education system still needs to close."
+    }
+  ],
   "education": [
     {
       "school": "IST",
