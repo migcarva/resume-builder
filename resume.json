@@ -1,16 +1,16 @@
 {
   "version": 1,
   "basics": {
-    "name": "Miguel Carvalho",
-    "title": "",
-    "email": "m@miguelcarvalho.xyz",
-    "phone": "+351 9xx xxx xxx",
-    "location": "",
-    "website": "https://miguelcarvalho.xyz",
-    "github": "github.com/migcarva",
-    "linkedin": "linkedin.com/in/migcarva"
+    "name": "Alex Doe",
+    "title": "Senior Frontend Engineer",
+    "email": "alex@example.com",
+    "phone": "+00 123 456 789",
+    "location": "Remote · GMT+0",
+    "website": "https://example.com",
+    "github": "github.com/your-handle",
+    "linkedin": "linkedin.com/in/your-handle"
   },
-  "summary": "My name is Miguel Carvalho, a Frontend Engineer from Portugal with a soft spot for minimal architecture, clean design, and software that empowers people.\n\nOver the past decade I have reinvented my career, founded a SaaS startup for logistics teams, helped Bright Pixel scale \"StayUps\", and shipped global translations at Unbabel. Since 2020 I have gone fully independent - designing Munii's next-gen banking UX, accelerating Parkinson's research with ASAP, creating Around's hybrid-meeting experience, and crafting Sedition's digital art platform.\n\nToday I lead frontend innovation at Eleos, pairing thoughtful design with dependable execution so the product feels as good as it performs.",
+  "summary": "Product-minded frontend engineer focused on building resilient, accessible interfaces. Comfortable owning architecture, collaborating across disciplines, and turning ambiguous ideas into shipped features.",
   "skills": [
     {
       "group": "Core",
@@ -54,164 +54,67 @@
   "experience": [
     {
       "role": "Lead Frontend Engineer",
-      "company": "Eleos Insurance",
+      "company": "Acme Analytics",
       "location": "Remote",
-      "start": "2024-06-01",
+      "start": "2022-06-01",
       "end": "",
-      "badge": "Fulltime",
+      "badge": "Full-time",
       "icon": "",
-      "summary": "As Lead Frontend Engineer at Eleos I own the entire web surface, from architecture and data flow to mentoring and hiring, acting as the go-to partner for every department shipping product.",
-      "stack": "React, Next.js, Nx, Typescript, Cypress, React Testing Library, Tailwind, Shadcn, React Hook Form, Remark",
+      "summary": "Owned the customer-facing platform, led the migration to a modern component library, and mentored a team of six engineers across three time zones.",
+      "stack": "TypeScript, React, Next.js, Playwright, Tailwind",
       "bullets": [],
-      "logo": "eleos.jpeg"
-    },
-    {
-      "role": "Lead Frontend Engineer",
-      "company": "Sedition",
-      "icon": "🖼️",
-      "location": "Remote",
-      "start": "2022-03-01",
-      "end": "2024-06-01",
-      "summary": "Sedition sells contemporary digital art online, and I lead the frontend team—bringing web3 features to the platform, mentoring engineers day to day, and partnering with recruiting to grow the squad.",
-      "stack": "TypeScript, React, Ether.js, Wagmi, Redux, Jest, SASS,  HAML",
-      "bullets": [],
-      "badge": "Fulltime",
-      "logo": "sedition.jpeg"
-    },
-    {
-      "role": "Senior Software Engineer",
-      "company": "Around by Miro Labs",
-      "icon": "🎥",
-      "location": "Remote",
-      "start": "2021-10-01",
-      "end": "2022-02-28",
-      "summary": "Partnered with the Head of Product to rapidly prototype hybrid-meeting experiences and ship them into production.",
-      "stack": "TypeScript, React Native, Electron, Jest, RxJS, Styled Components, Storybook",
-      "bullets": [],
-      "badge": "Contract",
-      "logo": "around.jpeg"
+      "logo": ""
     },
     {
       "role": "Senior Product Engineer",
-      "company": "YLD",
-      "location": "Remote",
-      "start": "2021-03-01",
-      "end": "2021-09-30",
+      "company": "Northwind Labs",
+      "icon": "",
+      "location": "Berlin, DE",
+      "start": "2020-01-01",
+      "end": "2022-05-31",
+      "summary": "Shipped real-time collaboration tooling in partnership with product, design, and research. Introduced testing practices that cut regression bugs by 40%.",
+      "stack": "React, Node.js, GraphQL, Cypress, Storybook",
+      "bullets": [],
       "badge": "Contract",
-      "logo": "yld.jpeg",
-      "summary": "Contracted by YLD to help ship ASAP’s Hub—a platform accelerating collaboration around the root causes of Parkinson’s disease. As a senior product engineer I operate as the bridge between Product, Design, and Engineering, leaning on experience, creativity, and pragmatic problem-solving to keep the team aligned and moving.",
-      "stack": "React, Jest, hyperform, TypeScript, React Hook Form, Rehype, Remark, Emotion",
-      "bullets": []
+      "logo": ""
     },
     {
-      "role": "Senior Agile Engineer",
-      "company": "Munii",
-      "location": "Remote",
-      "start": "2019-09-01",
-      "end": "2020-02-28",
-      "badge": "Contract",
+      "role": "Frontend Engineer",
+      "company": "Blue Ocean Studio",
+      "location": "Lisbon, PT",
+      "start": "2017-03-01",
+      "end": "2019-12-31",
+      "badge": "Full-time",
       "logo": "",
-      "summary": "Agile Engineer and founding team member at Munii, a challenger bank. Helped shape the initial product foundation, pairing with design and compliance to ship core banking flows, and built the engineering cadence that let the team iterate on new features with confidence.",
-      "stack": "React, Next.js, Typescript, Jest, Styled Components",
-      "bullets": []
-    },
-    {
-      "role": "Senior Frontend Engineer",
-      "company": "Unbabel",
-      "location": "Lisbon",
-      "start": "2019-09-01",
-      "end": "2020-08-31",
-      "badge": "Fulltime",
-      "logo": "unbabel.jpeg",
-      "summary": "Led frontend engineering at Unbabel first for the Video Translation product, then for the Language Operations group—delivering the tools internal teams relied on to manage multilingual support at scale for the AI translation platform.",
-      "stack": "Vue, React, Jest, Simgle SPA, Storybook",
-      "bullets": []
-    },
-    {
-      "role": "Software Engineer",
-      "company": "Bright Pixel",
-      "location": "Lisbon",
-      "start": "2017-10-01",
-      "end": "2019-09-30",
-      "badge": "Fulltime",
-      "logo": "brpx.jpeg",
-      "summary": "Frontend lead at Bright Pixel (brpx), the incubator’s technology arm. Split time between supporting incubated startups and third-party clients, but my primary mission was leading the Bank of Portugal Statistics portal—owning the frontend architecture, delivery, and day-to-day collaboration with stakeholders.",
-      "stack": "React, Styled Components, Javascript",
-      "bullets": []
-    },
-    {
-      "role": "Web Developer",
-      "company": "East Atlantic Engineering",
-      "location": "Lisbon",
-      "start": "2016-11-01",
-      "end": "2017-08-31",
-      "badge": "Fulltime",
-      "logo": "eae.jpeg",
-      "summary": "Web Developer at EAE, building and maintaining commerce sites for agency clients while also crafting bespoke experiences—like the Fundação Francisco Manuel dos Santos portal for publishing research and studies.",
-      "stack": "Vue, Javascript, Bootstrap, Handlebars, Mustache, PHP templating",
-      "bullets": []
-    },
-    {
-      "role": "Co-Founder",
-      "company": "Logisthica",
-      "location": "Lisbon",
-      "start": "2014-01-01",
-      "end": "2016-01-01",
-      "badge": "",
-      "logo": "logisthica.jpeg",
-      "summary": "Co‑founder at Logisthica, a platform for warehouse logistics and shipping. Balanced the CEO hat—strategy, fundraising, customer development—with leading the frontend product work so the team could ship a modern, reliable interface for operations teams.",
-      "stack": "",
+      "summary": "Built and maintained marketing and internal tools for clients in travel and fintech, introducing performance budgets and shared UI primitives.",
+      "stack": "Vue, React, Jest, Styled Components",
       "bullets": []
     }
   ],
   "projects": [
     {
-      "name": "Kodebase",
-      "url": "kodebase.ai",
-      "subtitle": "",
-      "details": "Kodebase transforms your Git repo into a living knowledge base, storing every plan, task, and doc alongside code for instant human-and-AI context."
+      "name": "Open Winds",
+      "url": "https://example.com",
+      "subtitle": "Sailing weather router",
+      "details": "Progressive web app surfacing wind, swell, and tide insights for coastal passages."
     },
     {
-      "name": "Miguel Carvalho Portfolio",
-      "url": "miguelcarvalho.xyz",
-      "subtitle": "",
-      "details": "Miguelcarvalho.xyz is my portfolio hub, highlighting my experience, selected work, and the projects that define my engineering practice"
-    },
-    {
-      "name": "Hardly Cool",
-      "url": "hardly.cool",
-      "subtitle": "",
-      "details": "Ideas Lab, Logo Design, Branding"
-    },
-    {
-      "name": "Tokie",
-      "url": "tokie.io",
-      "subtitle": "",
-      "details": "The fastest way to discover and share trades on Solana."
-    },
-    {
-      "name": "Portugal Desigual by FFMS",
-      "url": "https://ffms.pt/pt-pt/estudos/estudos/portugal-desigual-um-retrato-das-desigualdades-de-rendimentos-e-da-pobreza-no-pais",
-      "subtitle": "",
-      "details": "Unequal Portugal | A portrait of income inequality and poverty in the country."
-    },
-    {
-      "name": "Educação em Exame",
-      "url": "https://ffms.pt/pt-pt/estudos/educacao-em-exame",
-      "subtitle": "",
-      "details": "“Qual a qualidade da Educação em Portugal?” examines decades of PISA results to show how Portuguese students stack up against OECD peers, charting progress made and the gaps the education system still needs to close."
+      "name": "Field Notes",
+      "url": "https://example.com",
+      "subtitle": "Design system starter kit",
+      "details": "Opinionated component library with tokens, theming, and Storybook docs for rapid product exploration."
     }
   ],
   "education": [
     {
-      "school": "IST",
-      "degree": "Master of Architecture (M.Arch.)",
-      "year": "2010"
+      "school": "State University",
+      "degree": "BSc, Computer Science",
+      "year": "2016"
     },
     {
-      "school": "Code for All_",
-      "degree": "Bootcamp Java/Javascript",
-      "year": "2016"
+      "school": "Frontend Masters",
+      "degree": "Advanced React Patterns",
+      "year": "2023"
     }
   ]
 }

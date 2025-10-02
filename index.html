@@ -177,22 +177,22 @@
   const STORAGE_KEY = 'resumeDataV1';
   const WIDTH_KEY = 'resumeEditorWidth';
   const VERSION = 1;
-  const LOGO_FILES = ['around.jpeg','brpx.jpeg','eae.jpeg','eleos.jpeg','logisthica.jpeg','sedition.jpeg','unbabel.jpeg','yld.jpeg'];
+  const LOGO_FILES = [];
   const LOGO_OPTIONS = [''].concat(LOGO_FILES.map(name=>name));
 
   /** Default seed data */
   const DEFAULT_DATA = {
     version: VERSION,
     basics: {
-      name: 'Your Name',
+      name: 'Alex Doe',
       title: 'Senior Frontend Engineer',
-      email: 'you@example.com',
-      location: 'Sesimbra, PT',
-      website: 'https://yourdomain.com',
-      github: 'github.com/yourhandle',
-      linkedin: 'linkedin.com/in/yourhandle'
+      email: 'alex@example.com',
+      location: 'Remote · GMT+0',
+      website: 'https://example.com',
+      github: 'github.com/your-handle',
+      linkedin: 'linkedin.com/in/your-handle'
     },
-    summary: 'My name is Miguel Carvalho, a Frontend Engineer from Portugal with a soft spot for minimal architecture, clean design, and software that empowers people.\n\nOver the past decade I have reinvented my career, founded a SaaS startup for logistics teams, helped Bright Pixel scale "StayUps", and shipped global translations at Unbabel.\n\nSince 2020 I have gone fully independent - designing Munii\'s next-gen banking UX, accelerating Parkinson\'s research with ASAP, creating Around\'s hybrid-meeting experience, and crafting Sedition\'s digital art platform.\n\nToday I lead frontend innovation at Eleos, transforming the InsurTech landscape and opening new revenue streams.',
+    summary: 'Product-minded frontend engineer focused on crafting resilient interfaces and empowering teams with thoughtful tooling.\n\nExperienced leading complex migrations, introducing design systems, and partnering with product, design, and data to ship measurable outcomes.\n\nStrong collaboration habits, calm under pressure, and happiest in cross-functional squads shipping end-to-end value.',
     skills: [
       { group: 'Core', items: ['TypeScript','React','Next.js','Node.js','Vite','Zustand'] },
       { group: 'Testing', items: ['Playwright','Vitest','Testing Library','Cypress'] },
@@ -201,31 +201,31 @@
     ],
     experience: [
       {
-        role: 'Senior Software Engineer · Web3',
-        company: 'Sedition',
-        logo: 'sedition.jpeg',
+        role: 'Lead Frontend Engineer',
+        company: 'Acme Analytics',
+        logo: '',
         location: 'Remote',
-        start: '2022-03-01',
+        start: '2022-06-01',
         end: '',
-        summary: 'Sedition sells contemporary digital art online. I lead the frontend team bringing web3 capabilities to the platform, mentoring engineers and partnering with recruitment to scale the squad.',
-        stack: 'TypeScript · React · Ether.js · Wagmi · Redux · Jest · SASS · HAML'
+        summary: 'Guided the transition to a unified design system, introduced automated visual regression testing, and mentored a globally distributed frontend guild.',
+        stack: 'TypeScript · React · Next.js · Playwright · Tailwind'
       },
       {
-        role: 'Senior Software Engineer',
-        company: 'Around by Miro Labs',
-        logo: 'around.jpeg',
-        location: 'Lisbon',
-        start: '2021-10-01',
-        end: '2022-02-01',
-        summary: 'Partnered with the Head of Product to rapidly prototype hybrid-meeting experiences and ship them into production.',
-        stack: 'TypeScript · React Native · Electron · Jest · RxJS · Styled Components · Storybook'
+        role: 'Senior Product Engineer',
+        company: 'Northwind Labs',
+        logo: '',
+        location: 'Berlin',
+        start: '2020-01-01',
+        end: '2022-05-31',
+        summary: 'Partnered with product and research to prototype, validate, and launch new collaboration features used by 50k monthly teams.',
+        stack: 'React · Node.js · GraphQL · Cypress · Storybook'
       }
     ],
     projects: [
-      { name: 'Open Winds', url: 'https://example.com', subtitle: 'Sailing weather router', details: 'Wind/sea routing progressive web app for coastal passages.' }
+      { name: 'Open Winds', url: 'https://example.com', subtitle: 'Sailing weather router', details: 'Wind and swell routing progressive web app for coastal passages.' }
     ],
     education: [
-      { school: 'IST', degree: 'MSc, Computer Engineering', year: '2016' }
+      { school: 'State University', degree: 'BSc, Computer Science', year: '2016' }
     ]
   };
 
